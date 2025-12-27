@@ -1,25 +1,34 @@
 {
-  "manifest_version": 3,
-  "name": "ShortsFlow Pro",
-  "version": "1.0.0",
-  "description": "YouTube Shorts videolarını bittiğinde otomatik olarak kaydırır.",
-  "permissions": ["storage"],
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "128": "icon.png"
+    "manifest_version": 3,
+    "name": "YouTube Shorts Auto Scroll",
+    "version": "1.0.0",
+    "description": "YouTube Shorts videolarını otomatik olarak kaydırır",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "youtube-shorts-auto-scroll@example.com",
+            "strict_min_version": "109.0"
+        }
+    },
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "https://www.youtube.com/*",
+        "http://localhost:3000/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.youtube.com/shorts/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "YouTube Shorts Auto Scroll"
     }
-  },
-  "content_scripts": [
-    {
-      "matches": ["https://www.youtube.com/shorts/*"],
-      "js": ["content.js"]
-    }
-  ],
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "shortsflowpro@example.com",
-      "strict_min_version": "109.0"
-    }
-  }
 }
