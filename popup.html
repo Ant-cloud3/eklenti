@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Shorts Auto Next</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">🎬</div>
+        <div class="header-text">
+            <div class="title">Auto Next</div>
+            <div class="subtitle">YouTube Shorts</div>
+        </div>
+    </div>
+
+    <!-- Login View -->
+    <div id="loginView" class="view">
+        <div class="view-header">
+            <span class="view-icon">🔐</span>
+            <span>Giriş Yap</span>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="email@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Şifre</label>
+                <input type="password" id="loginPassword" placeholder="••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Giriş Yap</button>
+        </form>
+
+        <div class="divider">
+            <span>veya</span>
+        </div>
+
+        <button id="showRegister" class="btn btn-secondary">Kayıt Ol</button>
+        <button id="continueWithoutLogin" class="btn btn-ghost">Girişsiz Devam Et</button>
+
+        <div id="loginError" class="error-message"></div>
+    </div>
+
+    <!-- Register View -->
+    <div id="registerView" class="view hidden">
+        <div class="view-header">
+            <span class="view-icon">📝</span>
+            <span>Kayıt Ol</span>
+        </div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="registerEmail">Email</label>
+                <input type="email" id="registerEmail" placeholder="email@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">Şifre</label>
+                <input type="password" id="registerPassword" placeholder="En az 6 karakter" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-primary">Kayıt Ol</button>
+        </form>
+
+        <button id="showLogin" class="btn btn-ghost">← Giriş Yap</button>
+
+        <div id="registerError" class="error-message"></div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="view hidden">
+        <!-- User Info -->
+        <div class="user-info">
+            <div class="user-avatar">👤</div>
+            <div class="user-details">
+                <div id="userEmail" class="user-email">user@email.com</div>
+                <button id="logoutBtn" class="btn-link">Çıkış Yap</button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-card">
+            <div class="stats-header">📊 İstatistikler</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div id="totalVideos" class="stat-value">0</div>
+                    <div class="stat-label">Video</div>
+                </div>
+                <div class="stat-item">
+                    <div id="totalTime" class="stat-value">0 dk</div>
+                    <div class="stat-label">Süre</div>
+                </div>
+                <div class="stat-item">
+                    <div id="todayVideos" class="stat-value">0</div>
+                    <div class="stat-label">Bugün</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="settings-card">
+            <div class="settings-header">⚙️ Ayarlar</div>
+
+            <div class="setting-item">
+                <label for="scrollDelay">Kaydırma Süresi</label>
+                <div class="setting-control">
+                    <input type="range" id="scrollDelay" min="2" max="30" value="5">
+                    <span id="scrollDelayValue">5s</span>
+                </div>
+            </div>
+
+            <div class="setting-item">
+                <label for="autoStart">Otomatik Başlat</label>
+                <div class="setting-control">
+                    <label class="toggle">
+                        <input type="checkbox" id="autoStart">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <button id="saveSettings" class="btn btn-primary">Ayarları Kaydet</button>
+        </div>
+
+        <!-- Status -->
+        <div class="status-section">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <span id="statusText">Shorts sayfasına gidin</span>
+        </div>
+    </div>
+
+    <!-- Offline View (Girişsiz kullanım) -->
+    <div id="offlineView" class="view hidden">
+        <div class="offline-settings">
+            <div class="settings-header">⚙️ Hızlı Ayarlar</div>
+
+            <div class="setting-item">
+                <label for="offlineScrollDelay">Kaydırma Süresi</label>
+                <div class="setting-control">
+                    <input type="range" id="offlineScrollDelay" min="2" max="30" value="5">
+                    <span id="offlineScrollDelayValue">5s</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <p>💡 Giriş yapmadan kullanıyorsunuz. Ayarlarınız senkronize edilmeyecek.</p>
+        </div>
+
+        <button id="goToLogin" class="btn btn-secondary">Giriş Yap</button>
+    </div>
+
+    <div class="footer">v1.0.0</div>
+
+    <script src="api.js"></script>
+    <script src="popup.js"></script>
+</body>
+
+</html>
