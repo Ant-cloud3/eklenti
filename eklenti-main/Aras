@@ -1,0 +1,390 @@
+/**
+ * ShortsFlow Pro - Content Script
+ */
+
+let settings = {
+    autoScrollEnabled: true,
+    loopEnabled: false
+};
+
+// Ayarları yükle
+chrome.storage.local.get(['autoScrollEnabled', 'loopEnabled'], (result) => {
+    if (result.autoScrollEnabled !== undefined) settings.autoScrollEnabled = result.autoScrollEnabled;
+    if (result.loopEnabled !== undefined) settings.loopEnabled = result.loopEnabled;
+    applyLoopToVideos();
+});
+
+// Popup'tan gelen ayar değişikliklerini dinle
+chrome.runtime.onMessage.addListener((request) => {
+    if (request.type === 'UPDATE_SETTINGS') {
+        settings = request.settings;
+        applyLoopToVideos();
+        console.log(`[ShortsFlow] Güncel Ayarlar:`, settings);
+    }
+});
+
+/**
+ * Sayfadaki tüm videolara Loop ayarını uygular
+ */
+function applyLoopToVideos() {
+    const videos = document.querySelectorAll('video');
+    videos.forEach(video => {
+        video.loop = settings.loopEnabled;
+    });
+}
+
+/**
+ * Klavyeden 'ArrowDown' tuşunu simüle eder.
+ */
+function scrollToNext() {
+    if (!settings.autoScrollEnabled) return;
+
+    const event = new KeyboardEvent('keydown', {
+        key: 'ArrowDown',
+        code: 'ArrowDown',
+        keyCode: 40,
+        which: 40,
+        bubbles: true,
+        cancelable: true
+    });
+    document.dispatchEvent(event);
+}
+
+/**
+ * Video bittiğinde tetiklenecek fonksiyon
+ */
+function handleVideoEnd(event) {
+    const video = event.target;
+    // Eğer video loop modunda değilse ve kaydırma aktifse kaydır
+    if (!video.loop && settings.autoScrollEnabled) {
+        console.log("[ShortsFlow] Video bitti, sonrakine geçiliyor...");
+        scrollToNext();
+    }
+}
+
+/**
+ * Sayfa yapısını izler
+ */
+function observeVideos() {
+    const observer = new MutationObserver(() => {
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+            if (!video.dataset.shortsFlowFixed) {
+                video.addEventListener('ended', handleVideoEnd);
+                video.dataset.shortsFlowFixed = 'true';
+                // Yeni yüklenen videoya mevcut loop ayarını uygula
+                video.loop = settings.loopEnabled;
+            }
+        });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Mevcut videoları başlat
+    document.querySelectorAll('video').forEach(video => {
+        video.addEventListener('ended', handleVideoEnd);
+        video.dataset.shortsFlowFixed = 'true';
+        video.loop = settings.loopEnabled;
+    });
+}
+
+observeVideos();
+
+
+{
+  "manifest_version": 3,
+  "name": "ShortsFlow Pro",
+  "version": "1.0.0",
+  "description": "YouTube Shorts videolarını bittiğinde otomatik olarak kaydırır.",
+  "permissions": ["storage"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icon.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/shorts/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "shortsflowpro@example.com",
+      "strict_min_version": "109.0"
+    }
+  }
+}
+
+
+:root {
+    --primary-gradient: linear-gradient(135deg, #ff0055 0%, #ff5500 100%);
+    --bg-dark: #0f0f12;
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --text-main: #ffffff;
+    --text-dim: #a0a0a5;
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    width: 320px;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    overflow: hidden;
+}
+
+.container {
+    padding: 24px;
+    background: radial-gradient(circle at top right, rgba(255, 0, 85, 0.15), transparent);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.logo .icon {
+    font-size: 24px;
+}
+
+.logo h1 {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.logo h1 span {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.status {
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+}
+
+.control-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    backdrop-filter: blur(10px);
+    transition: transform 0.2s ease;
+}
+
+.control-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 85, 0, 0.3);
+}
+
+.info h3 {
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.info p {
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+/* Switch Styles */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background: var(--primary-gradient);
+}
+
+input:checked+.slider.blue {
+    background: linear-gradient(135deg, #0077ff 0%, #00d4ff 100%);
+}
+
+input:checked+.slider:before {
+    transform: translateX(24px);
+}
+
+.mt-16 {
+    margin-top: 16px;
+}
+
+footer {
+    margin-top: 24px;
+    text-align: center;
+}
+
+.badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+footer p {
+    font-size: 11px;
+    color: #444;
+}
+
+
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShortsFlow Pro</title>
+    <link rel="stylesheet" href="popup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="icon">🚀</span>
+                <h1>ShortsFlow <span>Pro</span></h1>
+            </div>
+            <p class="status">Sistemi kontrol et</p>
+        </header>
+
+        <main>
+            <div class="control-card">
+                <div class="info">
+                    <h3>Otomatik Kaydırma</h3>
+                    <p>Bittiğinde sıradakine geç.</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="scrollToggle" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <div class="control-card mt-16">
+                <div class="info">
+                    <h3>Döngü Modu (Loop)</h3>
+                    <p>Aynı videoyu tekrar oynat.</p>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="loopToggle">
+                    <span class="slider round blue"></span>
+                </label>
+            </div>
+        </main>
+
+        <footer>
+            <div class="badge">YouTube Shorts Edition</div>
+            <p>© 2025 Antigravity</p>
+        </footer>
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const scrollToggle = document.getElementById('scrollToggle');
+    const loopToggle = document.getElementById('loopToggle');
+
+    const isExtension = typeof chrome !== 'undefined' && chrome.storage;
+
+    // Ayarları Yükle
+    if (isExtension) {
+        chrome.storage.local.get(['autoScrollEnabled', 'loopEnabled'], (result) => {
+            if (result.autoScrollEnabled !== undefined) scrollToggle.checked = result.autoScrollEnabled;
+            if (result.loopEnabled !== undefined) loopToggle.checked = result.loopEnabled;
+        });
+    }
+
+    // Ortak mesaj gönderme fonksiyonu
+    const updateSettings = () => {
+        const settings = {
+            autoScrollEnabled: scrollToggle.checked,
+            loopEnabled: loopToggle.checked
+        };
+
+        if (isExtension) {
+            chrome.storage.local.set(settings);
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs[0]) {
+                    chrome.tabs.sendMessage(tabs[0].id, { type: 'UPDATE_SETTINGS', settings });
+                }
+            });
+        } else {
+            console.log("%c[Test Modu]", "color: #ff0055; font-weight: bold", settings);
+        }
+    };
+
+    // Kaydırma Değiştiğinde
+    scrollToggle.addEventListener('change', () => {
+        if (scrollToggle.checked) loopToggle.checked = false; // Çakışmayı önle
+        updateSettings();
+    });
+
+    // Döngü Değiştiğinde
+    loopToggle.addEventListener('change', () => {
+        if (loopToggle.checked) scrollToggle.checked = false; // Çakışmayı önle
+        updateSettings();
+    });
+});
+
+
