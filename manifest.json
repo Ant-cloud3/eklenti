@@ -1,0 +1,42 @@
+{
+    "manifest_version": 3,
+    "name": "YouTube Shorts Auto Next",
+    "version": "1.0.0",
+    "description": "YouTube Shorts videosu bittiğinde otomatik olarak sonraki videoya geçer",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "youtube-shorts-auto-next@example.com",
+            "strict_min_version": "109.0"
+        }
+    },
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "https://www.youtube.com/*",
+        "http://localhost:3000/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.youtube.com/shorts/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icon.png",
+            "48": "icon.png",
+            "128": "icon.png"
+        }
+    },
+    "icons": {
+        "48": "icon.png",
+        "96": "icon.png"
+    }
+}
